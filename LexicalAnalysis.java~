@@ -1,0 +1,25 @@
+import java.util.regex.Pattern;
+import java.util.regex.Matcher;
+
+public class LexicalAnalysis
+{
+     LexicalAnalysis()
+    {
+    }
+
+    public void findPredicates(String sentence)
+    {
+	String patternString = "[a-zA-Z]+?\(.*?\)";
+
+        Pattern pattern = Pattern.compile(patternString);
+        Matcher matcher = pattern.matcher(setence);
+	
+        int count = 0;
+        while(matcher.find())
+	    {
+		count++;
+	    }
+	System.out.println(count);
+	
+    }
+}
