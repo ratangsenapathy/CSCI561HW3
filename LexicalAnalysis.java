@@ -57,7 +57,7 @@ public class LexicalAnalysis
 		String[] parameters = seperator.split(params);
 		String predicateName = matcher.group(1);
 		int id = insertToLexicalTable(predicateName,parameters);
-		String identifier = "<" + id + "," + params +">";
+		String identifier = "`" + id + "," + params +"`";
 		matcher.appendReplacement(analysedString,identifier);
 	    }
 	matcher.appendTail(analysedString);

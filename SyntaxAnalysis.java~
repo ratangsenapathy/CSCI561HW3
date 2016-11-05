@@ -1,0 +1,15 @@
+import java.util.Stack;
+public class SyntaxAnalysis
+{
+    Stack<String>  stack;
+    SyntaxAnalysis()
+    {
+	stack = new Stack<String>();
+    }
+
+
+    public void convertToPostfix(String sentence)
+    {
+	
+    }
+}
