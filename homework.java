@@ -15,6 +15,9 @@ public class homework
 		SyntaxAnalysis syntax = new SyntaxAnalysis();
 		String postfixString = syntax.convertToPostfix(lexString);
 		System.out.println(postfixString);
+		String cnfString = syntax.convertToCNF(postfixString);
+		System.out.println("perform implication elimination");
+		System.out.println(cnfString);
 		
 		//System.out.println(args[0]);
 	    }
