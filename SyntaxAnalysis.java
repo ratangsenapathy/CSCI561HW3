@@ -1,10 +1,15 @@
 import java.util.Stack;
+import java.util.regex.Pattern;
+import java.util.regex.Matcher;
+
 public class SyntaxAnalysis
 {
     Stack<String>  stack;
+    boolean sentModInCNFCalc;
     SyntaxAnalysis()
     {
 	stack = new Stack<String>();
+	sentModInCNFCalc = false;
     }
 
 
@@ -174,35 +179,98 @@ public class SyntaxAnalysis
 	return stack.pop();
     }
 
-    public String performInwardNegation(String sentence)
+    public String applyDeMorgansLaw(String sentence)
     {
-	String tempString=sentence;
-	while(true)
+	int i=0;
+	int length = sentence.length();
+	//String modSentence="";
+	String alpha="";
+	String beta="";
+	while(i<length)
 	    {
-		String pattern1="~~";
-		Pattern pattern = Pattern.compile(pattern1);
-		Matcher matcher      = pattern.matcher(tempString);
+		int tokenEnd= getTokenEnd(sentence,i);
+		String token = sentence.substring(i,tokenEnd);
+		i=tokenEnd;
+		//	System.out.println("Token: " + token);
+		
+		if(token.charAt(0)=='`')
+		    {
+			stack.push(token);
+		    }
+		else if(token.equals("&") && tokenEnd<length && sentence.charAt(tokenEnd)=='~')
+		    {
+			String op2 = stack.pop();
+			String op1 = stack.pop();
+			String modSentence = op1+"~"+op2+"~"+"|";
+			stack.push(modSentence);
+			i+=1;
+			sentModInCNFCalc = true;
+		    }
+		else if(token.equals("|") && tokenEnd<length && sentence.charAt(tokenEnd)=='~')
+		    {
+			String op2 = stack.pop();
+			String op1 = stack.pop();
+			String modSentence = op1+"~"+op2+"~"+"&";
+			stack.push(modSentence);
+			i+=1;
+			sentModInCNFCalc = true;
+		    }
+		else
+		    if(token.equals("~"))
+			{
+			    String op=stack.pop();
+			    String modSentence = op+token;
+			    stack.push(modSentence);
+			}
+		  
+		    else
+			{
+			    String op2 = stack.pop();
+			    String op1 = stack.pop();
+			    String modSentence = op1+op2+token;
+			    stack.push(modSentence);
+			}
+	    }
+	
+	return stack.pop();
+    }
+
+    public String applyDoubleNegation(String sentence)
+    {
+		String pattern="~~";
+		Pattern p = Pattern.compile(pattern);
+		Matcher matcher = p.matcher(sentence);
 		StringBuffer stringBuffer = new StringBuffer();
 
 		while(matcher.find()){
 		    matcher.appendReplacement(stringBuffer, "");
 		    // System.out.println(stringBuffer.toString());
+		    sentModInCNFCalc = true;
 		}
 		matcher.appendTail(stringBuffer);
 
-		tempString = stringBuffer.toString();
+		return stringBuffer.toString();
+    }
+    
+    public String performInwardNegation(String sentence)
+    {
+	String tempString=sentence;
+	
+	    
+	do{
+	    sentModInCNFCalc = false;
+	    tempString = applyDeMorgansLaw(tempString);
+	    tempString = applyDoubleNegation(tempString);
 
+	}while(sentModInCNFCalc);
 
-		//--------------
-
-		String pattern2 = "(.*?)&~";
-	    }
+	return tempString;
     }
 
     public String convertToCNF(String sentence)   //Input Sentence is in postfix format here
     {
 	String step1 = performImplicationElimination(sentence);
-	String step2 = performInwardNegation(step1)
+	String step2 = performInwardNegation(step1);
 	return step2;
     }
 }

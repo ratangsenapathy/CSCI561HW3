@@ -16,7 +16,7 @@ public class homework
 		String postfixString = syntax.convertToPostfix(lexString);
 		System.out.println(postfixString);
 		String cnfString = syntax.convertToCNF(postfixString);
-		System.out.println("perform implication elimination");
+		System.out.println("perform implication elimination and inward negation");
 		System.out.println(cnfString);
 		
 		//System.out.println(args[0]);
