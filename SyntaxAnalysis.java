@@ -267,10 +267,140 @@ public class SyntaxAnalysis
 	return tempString;
     }
 
+    public String applyDistributiveLaw(String sentence)
+    {
+	
+	/*	String patternString1 = "(.+?)[&](.+?)\\|";
+		String newSentence=sentence;
+
+		do
+		{
+		sentModInCNFCalc=false;
+		Pattern pattern = Pattern.compile(patternString1);
+		Matcher matcher  = pattern.matcher(sentence);
+		StringBuffer stringBuffer = new StringBuffer();
+
+		while(matcher.find())
+		{
+		matcher.appendReplacement(stringBuffer,matcher.group(2)+matcher.group(1)+"&|");
+		sentModInCNFCalc=true;
+           
+		}
+		matcher.appendTail(stringBuffer);
+
+
+		newSentence= stringBuffer.toString();
+		}while(sentModInCNFCalc);*/
+	String newSentence = sentence;
+	//int count =1;
+	do{
+	    int i=0;
+	    sentModInCNFCalc = false;
+	    int length = newSentence.length();
+	    while(i<length)
+		{
+		    int tokenEnd= getTokenEnd(newSentence,i);
+		    String token = newSentence.substring(i,tokenEnd);
+		    i=tokenEnd;
+		    //	System.out.println("Token: " + token);
+		
+		    if(token.charAt(0)=='`')
+			{
+			    stack.push(token);
+			}
+		    else if(token.equals("&") && tokenEnd<length && newSentence.charAt(tokenEnd)=='|')
+			{
+			    String op3 = stack.pop();
+			    String op2 = stack.pop();
+			    String op1 = stack.pop();
+			    String modSentence = op1+op2+"|"+op1+op3+"|"+"&";
+			    stack.push(modSentence);
+			    i+=1;
+			    sentModInCNFCalc = true;
+			}
+		    else if(token.equals("|"))
+			{
+			    String op2 = stack.pop();
+			    String op1 = stack.pop();
+			    if(op1.charAt(op1.length()-1)=='&')
+				{
+				    int splitPosition = findParts(op1);
+				    String beta = op1.substring(0,splitPosition);
+				    String gamma = op1.substring(splitPosition,op1.length()-1);
+				    String modSentence = beta+op2+"|"+gamma+op2+"|&";
+				    stack.push(modSentence);
+				    sentModInCNFCalc = true;
+				}
+			    else
+				{
+				    String modSentence = op1+op2+token;
+				    stack.push(modSentence);
+				}
+			}
+		    else if(token.equals("~"))
+			{
+			    String op = stack.pop();
+			    String modSentence = op+"~";
+			    stack.push(modSentence);
+			}
+		    else
+			{
+			    String op2 = stack.pop();
+			    String op1 = stack.pop();
+			    String modSentence = op1+op2+token;
+			    stack.push(modSentence);
+			}
+		}
+	    //   sentModInCNFCalc = false;
+	    // count++;
+	    newSentence = stack.pop();
+	}while(sentModInCNFCalc);
+
+	return newSentence;
+	
+    }
+
+    public int findParts(String sentence)
+    {
+	Stack <String> s2 = new Stack<String>();
+	int length =sentence.length()-1;
+	int i=0;
+	while(i<length)
+	    {
+		int tokenEnd= getTokenEnd(sentence,i);
+		String token = sentence.substring(i,tokenEnd);
+		i=tokenEnd;
+		//	System.out.println("Token: " + token);
+		
+		if(token.charAt(0)=='`')
+		    {
+			s2.push(token);
+		    }
+		else if(token.equals("~"))
+		    {
+			String op = s2.pop();
+			String modSentence = op+"~";
+			s2.push(modSentence);
+		    }
+		else
+		    {
+			String op2 = s2.pop();
+			String op1 = s2.pop();
+			String modSentence = op1+op2+token;
+			s2.push(modSentence);
+		    }
+	    }
+
+	s2.pop();
+	return s2.pop().length();
+	
+    }
+
     public String convertToCNF(String sentence)   //Input Sentence is in postfix format here
     {
 	String step1 = performImplicationElimination(sentence);
 	String step2 = performInwardNegation(step1);
-	return step2;
+	String step3 = applyDistributiveLaw(step2);
+	return step3;
     }
 }
