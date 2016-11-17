@@ -1,6 +1,7 @@
 import java.util.Stack;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
+import java.util.LinkedList;
 
 public class SyntaxAnalysis
 {
@@ -402,5 +403,56 @@ public class SyntaxAnalysis
 	String step2 = performInwardNegation(step1);
 	String step3 = applyDistributiveLaw(step2);
 	return step3;
+    }
+
+    public void addSentenceToDatabase(String sentence, Database database)
+    {
+	int i=0;
+	int length = sentence.length();
+	//String modSentence="";
+	LinkedList<String> clause = new LinkedList<String>();
+	while(i<length)
+	    {
+		int tokenEnd= getTokenEnd(sentence,i);
+		String token = sentence.substring(i,tokenEnd);
+		i=tokenEnd;
+		//	System.out.println("Token: " + token);
+		
+		if(token.charAt(0)=='`')
+		    {
+			stack.push(token);
+		    }
+		else
+		    if(token.equals("~"))
+			{
+			    String op=stack.pop();
+			    String modSentence = op+token;
+			    stack.push(modSentence);
+			}
+		    else
+			if(token.equals("&"))
+			    {
+				//String op2 = stack.pop();
+				//String op1 = stack.pop();
+			        database.add(clause);
+				clause = new LinkedList<String>();
+				//	String modSentence = op1+"~"+op2+"|";
+				//	stack.push(modSentence);
+			    }
+			else if(!token.equals('|'))
+			    {   String op1="",op2="";
+				op2 = stack.pop();
+				if(!stack.isEmpty())
+				    {op1 = stack.pop();
+				    clause.add(op1);
+				    }
+				clause.add(op2);
+	      
+			    }
+	    }
+	
+	//	return stack.pop();
+	if(!(clause.size()==0))
+	    database.add(clause);
     }
 }

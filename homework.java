@@ -6,20 +6,27 @@ public class homework
     {
      
 	homework hw = new homework();
-	if(args.length!=0)
+	LexicalAnalysis lex = new LexicalAnalysis();
+	Database database = new Database();
+	for(int i=0;i<args.length;i++)
 	    {
-		LexicalAnalysis lex = new LexicalAnalysis();
-		String lexString = lex.getLexicallyAnalysedString(args[0]);
-		System.out.println(lexString);
-		System.out.println("Perform Tokenization");
-		SyntaxAnalysis syntax = new SyntaxAnalysis();
-		String postfixString = syntax.convertToPostfix(lexString);
-		System.out.println(postfixString);
-		String cnfString = syntax.convertToCNF(postfixString);
-		System.out.println("perform implication elimination and inward negation");
-		System.out.println(cnfString);
-		
-		//System.out.println(args[0]);
+		if(args.length!=0)
+		    {
+			System.out.println("Current sentence: " + args[i]);
+			String lexString = lex.getLexicallyAnalysedString(args[i]);
+			System.out.println(lexString);
+			System.out.println("Perform Tokenization");
+			SyntaxAnalysis syntax = new SyntaxAnalysis();
+			String postfixString = syntax.convertToPostfix(lexString);
+			System.out.println(postfixString);
+			String cnfString = syntax.convertToCNF(postfixString);
+			System.out.println("Convert to CNF");
+			System.out.println(cnfString);
+			System.out.println("Store into database");
+			syntax.addSentenceToDatabase(cnfString,database);
+			//System.out.println(args[0]);
+			database.displayDatabase();
+		    }
 	    }
 	    
     }
