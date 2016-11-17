@@ -405,12 +405,53 @@ public class SyntaxAnalysis
 	return step3;
     }
 
+    public LinkedList<String> splitIntoLiterals(String clauseString)
+    {
+	int i=0;
+	int length = clauseString.length();
+	LinkedList<String> clause = new LinkedList<String>();
+	String literal="";
+	while(i<length)
+	    {
+		int tokenEnd= getTokenEnd(clauseString,i);
+		String token = clauseString.substring(i,tokenEnd);
+		i=tokenEnd;
+	
+		
+		if(token.charAt(0)=='`')
+		    {
+			if(!literal.equals(""))
+			    {
+				clause.add(literal);
+				literal="";
+			    }
+			literal+=token;
+		    }
+		else
+		    if(token.equals("~"))
+			{
+			    literal+=token;
+			    clause.add(literal);
+			    literal="";
+			}
+		    else
+			{
+			    if(!literal.equals(""))
+			    clause.add(literal);
+			    literal="";
+			}
+		   
+	    }
+
+	return clause;
+	
+    }
     public void addSentenceToDatabase(String sentence, Database database)
     {
 	int i=0;
 	int length = sentence.length();
 	//String modSentence="";
-	LinkedList<String> clause = new LinkedList<String>();
+	//	LinkedList<String> clause = new LinkedList<String>();
 	while(i<length)
 	    {
 		int tokenEnd= getTokenEnd(sentence,i);
@@ -432,27 +473,38 @@ public class SyntaxAnalysis
 		    else
 			if(token.equals("&"))
 			    {
-				//String op2 = stack.pop();
-				//String op1 = stack.pop();
-			        database.add(clause);
-				clause = new LinkedList<String>();
-				//	String modSentence = op1+"~"+op2+"|";
-				//	stack.push(modSentence);
+				String op2 = stack.pop();
+				String op1 = stack.pop();
+				LinkedList<String> clause = null;
+				if(op1.charAt(op1.length()-1)!='&')
+				    {
+					clause = splitIntoLiterals(op1);
+					database.add(clause);
+				    }
+				clause = splitIntoLiterals(op2);
+				database.add(clause);
+
+				
+			        //database.add();
+				//clause = new LinkedList<String>();
+				String modSentence = op1+op2+"&";
+				stack.push(modSentence);
 			    }
 			else if(!token.equals('|'))
 			    {   String op1="",op2="";
 				op2 = stack.pop();
-				if(!stack.isEmpty())
-				    {op1 = stack.pop();
-				    clause.add(op1);
-				    }
-				clause.add(op2);
+				op1 = stack.pop();
+				String modSentence = op1+op2+"|";
+				stack.push(modSentence);
 	      
 			    }
 	    }
 	
-	//	return stack.pop();
-	if(!(clause.size()==0))
-	    database.add(clause);
+	String op = stack.pop();
+	if(op.charAt(op.length()-1)!='&')
+	    {
+		LinkedList<String> clause = splitIntoLiterals(op);
+		database.add(clause);
+	    }
     }
 }

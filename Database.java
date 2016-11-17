@@ -18,9 +18,10 @@ public class Database
 
     public void displayDatabase()
     {
+	int i=1;
 	for(LinkedList<String> entry : entries)
 	    {
-		System.out.println("Entry1");
+		System.out.println("Entry "+i++);
 		for(String literal : entry)
 		    {
 			System.out.print(literal + " ");
