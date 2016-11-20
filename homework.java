@@ -12,7 +12,7 @@ public class homework
 	    {
 		if(args.length!=0)
 		    {
-			if(i!=args.length)
+			if(i!=args.length-1)
 			    {
 				System.out.println("Current sentence: " + args[i]);
 				String lexString = lex.getLexicallyAnalysedString(args[i]);
@@ -28,17 +28,23 @@ public class homework
 				//	syntax.addSentenceToDatabase(cnfString,database);
 				database.addSentenceToDatabase(cnfString);
 				//System.out.println(args[0]);
-				database.displayDatabase();
+			
 			    }
 			else
 			    {
 				System.out.println("Current sentence: " + args[i]);
 				String lexString = lex.getLexicallyAnalysedString(args[i]);
 				System.out.println(lexString);
-				Resolution r = new Resolution(database);
+				Resolution res = new Resolution();
+				SyntaxAnalysis syntax = new SyntaxAnalysis();
+				String postfixString = syntax.convertToPostfix(lexString);
+				System.out.println(postfixString);
+				String result = res.performResolution(postfixString,database);
+				System.out.println(result);
 			    }
 		    }
 	    }
+	//database.displayDatabase();
 	    
     }
 }

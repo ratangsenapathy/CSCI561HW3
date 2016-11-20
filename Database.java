@@ -30,7 +30,7 @@ public class Database extends Compiler
 	    }
     }
 
-     public HashSet<String> splitIntoLiterals(String clauseString)
+    public HashSet<String> splitIntoLiterals(String clauseString)
     {
 	int i=0;
 	int length = clauseString.length();
@@ -40,6 +40,7 @@ public class Database extends Compiler
 	    {
 		int tokenEnd= getTokenEnd(clauseString,i);
 		String token = clauseString.substring(i,tokenEnd);
+	
 		i=tokenEnd;
 	
 		
@@ -68,6 +69,12 @@ public class Database extends Compiler
 			    literal="";
 			}
 		   
+	    }
+
+	if(!literal.equals(""))
+	    {
+		if(!clause.contains(literal))
+		    clause.add(literal);
 	    }
 
 	return clause;
@@ -130,12 +137,14 @@ public class Database extends Compiler
 	
 	String op = stack.pop();
 	if(op.charAt(op.length()-1)!='&')
-	    {
+	    {  // System.out.println("Database entry to be pushed: "+op);
 		HashSet<String> clause = splitIntoLiterals(op);
 		add(clause);
 	    }
     }
-    
+
+
+  
 }
 
 
