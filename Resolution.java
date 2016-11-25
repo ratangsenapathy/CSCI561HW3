@@ -3,7 +3,65 @@ import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 import java.util.Iterator;
 import java.util.HashSet;
+import java.util.HashMap;
+import java.util.Arrays;
 
+class Literal
+{
+    String predicate;
+    String[] parameters;
+    boolean isPositive;
+
+    Literal(String predicate, String parameterString,String type)
+    {
+	this.predicate = predicate;
+	this.parameters = parameterString.split(",");
+	this.isPositive = type.contains("~")?false:true;
+    }
+
+    Literal(String predicate,String[] parameters, String type)
+    {
+	this.predicate = predicate;
+	int length=parameters.length;
+	this.parameters = new String[length];
+	for(int i=0;i<length;i++)
+	    {
+		this.parameters[i] = parameters[i];
+	    }
+	this.isPositive = type.contains("~")?false:true;
+    }
+
+    Literal(String predicate,String[] parameters, boolean isPositive)
+    {
+	this.predicate = predicate;
+	int length=parameters.length;
+	this.parameters = new String[length];
+	for(int i=0;i<length;i++)
+	    {
+		this.parameters[i] = parameters[i];
+	    }
+	this.isPositive = isPositive;
+    }
+
+    Literal(String predicate,String parameter,boolean isPositive)
+    {
+	this.predicate = predicate;
+	this.parameters = new String[1];
+	this.parameters[0] = parameter;
+	this.isPositive = isPositive;
+    }
+
+    public String convertToString()
+    {
+	String parametersString = "";
+	int len = parameters.length;
+	for(int i=0;i<len;i++)
+	    {
+		parametersString += ","+ parameters[i];
+	    }
+	return "`" + predicate + parametersString + "`" + (isPositive ? "" : "~");
+    }
+}
 public class Resolution
 {
     //Stack<String> stack;
@@ -47,9 +105,9 @@ public class Resolution
     {
 	assignDatabase(db);
 	addQuery(query);
-		System.out.println("Display database:");
-		database.displayDatabase();
-		System.out.println("Dislayed database");
+	//System.out.println("Display database:");
+	//	database.displayDatabase();
+	//	System.out.println("Dislayed database");
 	HashSet<HashSet<String>> newClauses = new HashSet<HashSet<String>>();
 
 	while(true)
@@ -102,6 +160,23 @@ public class Resolution
 	//return "False";
     }
 
+    public Literal getLiteralInfo(String text)
+    {
+	Literal literal = null;
+	String patternString ="`(.+?),(.+?)`(~?)";
+
+	Pattern pattern = Pattern.compile(patternString);
+        
+	Matcher matcher = pattern.matcher(text);
+        String predicate="";
+	while(matcher.find())
+	    {
+		literal = new Literal(matcher.group(1),matcher.group(2),matcher.group(3));
+	    }
+	
+	return literal;
+    }
+    
     public HashSet<HashSet<String>> resolve(HashSet<String> clause1, HashSet<String> clause2)
     {
 	HashSet<HashSet<String>> resolvents = new HashSet<HashSet<String>>();
@@ -109,22 +184,43 @@ public class Resolution
 	    {
 		for(String literal2 : clause2)
 		    {
-
-			String predicate1 = literal1.substring(1,literal1.indexOf(','));
-			String predicate2 = literal2.substring(1,literal2.indexOf(','));
-			//	System.out.println("literal 1: " + literal1 + "literal 2: " + literal2);
-			//System.out.println("Predicate 1: " + predicate1 + "Predicate 2: " + predicate2);
+			int literal1PredicateSeperatorIndex = literal1.indexOf(',');
+			int literal2PredicateSeperatorIndex = literal2.indexOf(',');
 			
-			if(predicate1.equals(predicate2) && literal1.charAt(literal1.length()-1) != literal2.charAt(literal2.length()-1))
+		
+
+			Literal l1=getLiteralInfo(literal1);
+
+			Literal l2=getLiteralInfo(literal2);
+
+			String predicate1 = l1.predicate;
+			String predicate2 = l2.predicate;
+			
+			if(predicate1.equals(predicate2) && l1.isPositive != l2.isPositive)
 			    {
-				
+				HashMap<String,String> bindings = new HashMap<String,String>();
+				bindings = unify(l1,l2,bindings);
+				if(bindings==null)
+				    break;
 				HashSet<String> resolvent=new HashSet<String>();
 
 				for(String literal : clause1)
 				    {
 					if(!literal.equals(literal1))
 					    {
-						resolvent.add(literal);
+						Literal l = getLiteralInfo(literal);
+						int len = l.parameters.length;
+						for(int i=0;i<len;i++)
+						    {
+							String p = l.parameters[i];
+							if(bindings.containsKey(p))
+							    {
+								l.parameters[i] = bindings.get(p);
+							    }
+							    
+						    }
+						
+						resolvent.add(l.convertToString());
 					    }
 				    }
 
@@ -132,7 +228,18 @@ public class Resolution
 				    {
 					if(!literal.equals(literal2))
 					    {
-						resolvent.add(literal);
+						Literal l = getLiteralInfo(literal);
+						int len = l.parameters.length;
+						for(int i=0;i<len;i++)
+						    {
+							String p = l.parameters[i];
+							if(bindings.containsKey(p))
+							    {
+								l.parameters[i] = bindings.get(p);
+							    }
+							    
+						    }
+						resolvent.add(l.convertToString());
 					    }
 				    }
 				
@@ -145,5 +252,56 @@ public class Resolution
 		    }
 	    }
 	return resolvents;
+    }
+
+    public HashMap<String,String> unify(Literal literal1, Literal literal2, HashMap<String,String> bindings)
+    {
+	if(bindings == null)
+	    return null;
+	else if(Arrays.equals(literal1.parameters,literal2.parameters))
+	    return bindings;
+	else if(literal1.parameters.length == 1 && Character.isLowerCase(literal1.parameters[0].charAt(0)))
+	    return unifyVar(literal1.parameters[0],literal2,bindings);
+	else if(literal2.parameters.length == 1 && Character.isLowerCase(literal2.parameters[0].charAt(0)))
+	    return unifyVar(literal2.parameters[0],literal1,bindings);
+	else
+	    if(literal1.parameters.length > 1 && literal2.parameters.length > 1)
+		{
+		    String[] r1 = Arrays.copyOfRange(literal1.parameters,1,literal1.parameters.length);
+		    String[] r2 = Arrays.copyOfRange(literal2.parameters,1,literal2.parameters.length);
+
+		    Literal first1 = new Literal(literal1.predicate,literal1.parameters[0],literal1.isPositive);
+		    Literal first2 = new Literal(literal2.predicate,literal2.parameters[0],literal2.isPositive);
+		    
+		    Literal rest1 = new Literal(literal1.predicate,r1,literal1.isPositive);
+		    Literal rest2 = new Literal(literal2.predicate,r2,literal2.isPositive);
+		    
+		    return unify(rest1,rest2,unify(first1,first2,bindings));
+		}
+	    else
+		return null;
+    }
+
+    public HashMap<String,String> unifyVar(String var, Literal lit, HashMap<String,String> bindings)
+    {
+	if(bindings.containsKey(var))
+	    {
+		String val = bindings.get(var);
+		Literal valLiteral = new Literal(lit.predicate,val,!lit.isPositive);
+		return unify(valLiteral,lit,bindings);
+	    }
+	else
+	    if(bindings.containsKey(lit.parameters[0]))
+		{
+		    String val = bindings.get(lit.parameters[0]);
+		    Literal l1 = new Literal(lit.predicate,var,!lit.isPositive);
+		    Literal l2 = new Literal(lit.predicate,bindings.get(lit.parameters[0]),lit.isPositive);
+		    return unify(l1,l2,bindings);
+		}
+	    else
+		{
+		    bindings.put(var,lit.parameters[0]);
+		    return bindings;
+		}
     }
 }
