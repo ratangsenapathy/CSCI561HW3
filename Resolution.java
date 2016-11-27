@@ -5,6 +5,8 @@ import java.util.Iterator;
 import java.util.HashSet;
 import java.util.HashMap;
 import java.util.Arrays;
+import java.util.Scanner;
+import java.util.Map;
 
 class Literal
 {
@@ -93,27 +95,32 @@ public class Resolution
 	
     }
 
-    public void assignDatabase(Database db)
+    public void assignDatabase(Database dbMain, Database db)
     {
 	for(HashSet<String> entry : db.entries)
 	    {
-		database.entries.add(entry);
+		dbMain.entries.add(entry);
 	    }
     }
 
     public String performResolution(String query,Database db)
     {
-	assignDatabase(db);
+	assignDatabase(database,db);
 	addQuery(query);
-	//System.out.println("Display database:");
+	//	System.out.println("Display database:");
 	//	database.displayDatabase();
-	//	System.out.println("Dislayed database");
+	//System.out.println("Dislayed database");
 	HashSet<HashSet<String>> newClauses = new HashSet<HashSet<String>>();
-
+	HashSet<String> resolvedSet = new HashSet<String>();
+	//HashSet<HashSet<String>> usedClauses = new HashSet<HashSet<String>>();
+	
 	while(true)
 	    {
 		// Iterator<HashSet<String>> it1 = database.entries.iterator();
 		int index1 = 0;
+		//	System.out.println("Display database:");
+		//database.displayDatabase();
+		//System.out.println("Dislayed database");
 		for(HashSet<String> clause1 : database.entries)
 		    {
 			//HashSet<String> clause1 = it1.next();
@@ -130,11 +137,42 @@ public class Resolution
 				    }
 				
 				//HashSet<String> clause2 =it2.next();
+				/*	System.out.println("Resolve");
+					for(String lit : clause1)
+					{
+					System.out.print(lit + "   ");
+					}
 
-				HashSet<HashSet<String>> resolvents = resolve(clause1,clause2);
-				if(resolvents == null)
-				    return "True";
-				newClauses.addAll(resolvents);
+					System.out.println("");
+					for(String lit : clause2)
+					{
+					System.out.print(lit + "   ");
+					}*/
+
+				//	Scanner sc = new Scanner(System.in);
+				//	sc.next();
+
+				String entryLit="";
+				for(String lit : clause1)
+				    {
+					entryLit+=lit;
+				    }
+
+				for(String lit : clause2)
+				    {
+					entryLit+=lit;
+				    }
+				if(!resolvedSet.contains(entryLit))
+				    {
+					HashSet<HashSet<String>> resolvents = resolve(clause1,clause2);
+				
+					if(resolvents == null)
+					    return "True";
+					//resolvedSet.add(entryLit);
+					//	usedClauses.add(clause1);
+					//usedClauses.add(clause2);
+					newClauses.addAll(resolvents);
+				    }
 
 				//index2++;
 			    }
@@ -184,8 +222,8 @@ public class Resolution
 	    {
 		for(String literal2 : clause2)
 		    {
-			int literal1PredicateSeperatorIndex = literal1.indexOf(',');
-			int literal2PredicateSeperatorIndex = literal2.indexOf(',');
+			//int literal1PredicateSeperatorIndex = literal1.indexOf(',');
+			//int literal2PredicateSeperatorIndex = literal2.indexOf(',');
 			
 		
 
@@ -199,9 +237,41 @@ public class Resolution
 			if(predicate1.equals(predicate2) && l1.isPositive != l2.isPositive)
 			    {
 				HashMap<String,String> bindings = new HashMap<String,String>();
+
+				//	System.out.println("Unify literals");
+				//	System.out.println("Literal 1:" + literal1 + " Literal 2:" + literal2);
+				//Scanner sc = new Scanner(System.in);
+				//sc.next();
 				bindings = unify(l1,l2,bindings);
+				/*if(bindings.containsKey("y") && bindings.get("y").equals("x") && bindings.containsKey("z") && bindings.get("z").equals("x"))
+				    {
+					System.out.println("Bindings found");
+					System.out.println("Predicates are " + l1.predicate + " and " + l2.predicate);
+					System.out.print("Params 1:");
+					for(String p : l1.parameters)
+					    {
+						System.out.print(p+" ");
+					    }
+
+					System.out.print("\nParams 2:");
+					for(String p : l2.parameters)
+					    {
+						System.out.print(p+" ");
+					    }
+					    }*/
 				if(bindings==null)
-				    break;
+				    continue;
+
+				/*	System.out.println("Bindings");
+					for (Map.Entry<String,String> entry : bindings.entrySet())
+					{
+					String key = entry.getKey();
+					String value = entry.getValue();
+					System.out.print(key+"/"+value+" ");
+				    
+					}
+					System.out.println("");*/
+				
 				HashSet<String> resolvent=new HashSet<String>();
 
 				for(String literal : clause1)
@@ -215,10 +285,29 @@ public class Resolution
 							String p = l.parameters[i];
 							if(bindings.containsKey(p))
 							    {
-								l.parameters[i] = bindings.get(p);
+								String val = getBindingValue(p,bindings);
+								l.parameters[i] = val;
+								/*if(i!=0)
+								    {
+									if(l.parameters[i].equals(l.parameters[i-1]))
+									    {
+										Scanner sc=new Scanner(System.in);
+										System.out.println("Equal params detected");
+										System.out.println("Bindings");
+										for(Map.Entry<String,String> entry : bindings.entrySet())
+										    {
+											String key = entry.getKey();
+											String value = entry.getValue();
+											System.out.print(key + "/" + value + " ");
+										    }
+										sc.next();
+									    }
+									    }*/
 							    }
 							    
 						    }
+
+						
 						
 						resolvent.add(l.convertToString());
 					    }
@@ -235,7 +324,8 @@ public class Resolution
 							String p = l.parameters[i];
 							if(bindings.containsKey(p))
 							    {
-								l.parameters[i] = bindings.get(p);
+								String val = getBindingValue(p,bindings);
+								l.parameters[i] = val;
 							    }
 							    
 						    }
@@ -291,7 +381,7 @@ public class Resolution
 		return unify(valLiteral,lit,bindings);
 	    }
 	else
-	    if(bindings.containsKey(lit.parameters[0]))
+	    if(lit.parameters.length == 1 && bindings.containsKey(lit.parameters[0]))
 		{
 		    String val = bindings.get(lit.parameters[0]);
 		    Literal l1 = new Literal(lit.predicate,var,!lit.isPositive);
@@ -304,4 +394,88 @@ public class Resolution
 		    return bindings;
 		}
     }
+
+
+    public String getBindingValue(String var,HashMap<String,String> bindings)
+    {
+	if(bindings.containsKey(var))
+	    {
+		return bindings.get(var);//getBindingValue(bindings.get(var),bindings);
+	    }
+	else
+	    return var;
+    }
+
+    public boolean isVariable(String token)
+    {
+	if(Character.isLowerCase(token.charAt(0)))
+	    return true;
+	else
+	    return false;
+    }
+
+    public HashMap<String,String> unifyLiterals(Literal l1, Literal l2, HashMap<String,String> theta)
+    {
+	for(int i=0;i<l1.parameters.length;i++)
+	    {
+		String r = l1.parameters[i];
+		String s = l2.parameters[i];
+		
+		if(!r.equals(s))
+		    {
+			if(isVariable(r))
+			    {
+				theta = union(theta,r,s);
+				//	return unifyLiterals(substitution(theta,l1),substitution(theta,l2),theta);
+			    }
+			else if(isVariable(s))
+			    {
+				theta = union(theta,s,r);
+				//	return unifyLiterals(substitution(theta,l1),substitution(theta,l2),theta);
+			    }
+			//else
+			//return null;
+		    }
+
+		if(theta==null)
+		    return theta;
+	    }
+
+	return theta;
+    }
+
+    public HashMap<String,String> union(HashMap<String,String> theta, String key, String value)
+    {
+	if(theta.containsKey(key))
+	    {
+		String v =theta.get(key);
+		if(!(v.equals(value)))
+		    {
+			if(isVariable(v))
+			    {
+				theta = union(theta,v,value);
+			    }
+			else if(isVariable(value))
+			    {
+				theta = union(theta,value,v);
+			    }
+			else
+			    theta=null;
+		    }
+		    
+	    }
+	else
+	    {
+		theta.put(key,value);
+	    }
+
+	return theta;
+    }
 }
+
+//Likes(John,x) ~Likes(x,Elizabeth)
+/*
+Like(x,y) ~Like(Joe,Boa)
+Like (x,y) ~Like(y,x)
+Knows(John,x) Knows(y,z)
+ */

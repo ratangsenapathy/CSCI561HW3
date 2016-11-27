@@ -1,0 +1,9 @@
+4
+B(Tom)
+~B(Tom)
+~C(Tom)
+C(Tom)
+3
+A(x) => B(x)
+B(x)=> C(x)
+A(Tom)

@@ -1,0 +1,6 @@
+1
+B(Tom)
+3
+A(x) => B(x)
+B(x)=> C(x)
+A(Tom)
