@@ -1,5 +1,8 @@
 import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.HashMap;
+import java.util.regex.Pattern;
+import java.util.regex.Matcher;
 
 public class Database extends Compiler
 {
@@ -28,6 +31,74 @@ public class Database extends Compiler
 		    }
 		System.out.println("");
 	    }
+    }
+
+    public HashSet<String> normalizeClause(HashSet<String> clause)
+    {
+	HashMap<String,Integer> normalVariables = new HashMap<String,Integer>();
+	int tokenVal=0;
+	HashSet<String> newClause = new HashSet<String>();
+	for(String literal : clause)
+	    {
+		String patternString ="`(.+?),(.+?)`(~?)";
+
+		Pattern pattern = Pattern.compile(patternString);
+        
+		Matcher matcher = pattern.matcher(literal);
+		String predicate="";
+		StringBuffer stringBuffer = new StringBuffer();
+		while(matcher.find())
+		    {
+			String p = matcher.group(2);
+			String[] params = p.split(",");
+			String[] newParams = new String[params.length];
+			for(int i=0;i<params.length;i++)
+			    {
+				if(Character.isLowerCase(params[i].charAt(0)))
+				    {
+					if(normalVariables.containsKey(params[i]))
+					    newParams[i] = "x" + normalVariables.get(params[i]);
+					else
+					    {
+						normalVariables.put(params[i],tokenVal++);
+						newParams[i] = "x" + normalVariables.get(params[i]); 
+					    }
+				    }
+				else
+				    newParams[i] = params[i];
+			    }
+			
+			String replacement="`" + matcher.group(1);
+			    for(int i=0;i<newParams.length;i++)
+				{
+				  
+					replacement+= "," + newParams[i];
+				   
+				}
+			replacement+= "`" + matcher.group(3);
+
+			matcher.appendReplacement(stringBuffer, replacement);
+		    }
+		matcher.appendTail(stringBuffer);
+		newClause.add(stringBuffer.toString());
+	
+	    }
+
+	return newClause;
+		
+    }
+    public void normalizeDatabase()
+    {
+	HashSet<HashSet<String>> newEntries = new HashSet<HashSet<String>>();
+	for(HashSet<String> clause : entries)
+	    {
+		
+		HashSet<String> newClause = normalizeClause(clause);
+		newEntries.add(newClause);
+		
+	    }
+
+	entries = newEntries;
     }
 
     public HashSet<String> splitIntoLiterals(String clauseString)

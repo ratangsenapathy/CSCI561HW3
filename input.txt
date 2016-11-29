@@ -1,9 +1,10 @@
-4
-B(Tom)
-~B(Tom)
-~C(Tom)
-C(Tom)
-3
-A(x) => B(x)
-B(x)=> C(x)
-A(Tom)
+1
+Kills(Jack,D) => False(Ans)
+7
+Dog(D)
+Owns(Jack,D)
+Dog(y) & Owns(x,y) => AnimalLover(x)
+AnimalLover(x) & Animal(y) & Kills(x,y) =>False(Ans)
+Kills(Jack,Tuna) | Kills(Curiosity,Tuna)
+Cat(Tuna)
+Dog(x) => Animal(x)

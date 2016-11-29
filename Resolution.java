@@ -75,7 +75,7 @@ public class Resolution
 	
     }
 
-    public void addQuery(String query)
+    public String getNegatedQuery(String query)
     {
 	int length=query.length()-1;
 	String negatedQuery="";
@@ -89,8 +89,9 @@ public class Resolution
 		negatedQuery = query+"~";
 	    }
 
-	//	System.out.println("Negated query:" + negatedQuery); 
-	database.addSentenceToDatabase(negatedQuery);
+	//	System.out.println("Negated query:" + negatedQuery);
+	return negatedQuery;
+	//database.addSentenceToDatabase(negatedQuery);
 	    
 	
     }
@@ -103,13 +104,18 @@ public class Resolution
 	    }
     }
 
-    public String performResolution(String query,Database db)
+    public String performResolution(String negatedQuery,Database db)
     {
+	//System.out.println(negatedQuery);
 	assignDatabase(database,db);
-	addQuery(query);
+	//String negatedQuery = getNegatedQuery(query);
+	database.addSentenceToDatabase(negatedQuery);
+	database.normalizeDatabase();
+	//	Database tempDatabase = new Database();
+	//assignDatabase(tempDatabase,database);
 	//	System.out.println("Display database:");
 	//	database.displayDatabase();
-	//System.out.println("Dislayed database");
+	//	System.out.println("Dislayed database");
 	HashSet<HashSet<String>> newClauses = new HashSet<HashSet<String>>();
 	HashSet<String> resolvedSet = new HashSet<String>();
 	//HashSet<HashSet<String>> usedClauses = new HashSet<HashSet<String>>();
@@ -119,8 +125,8 @@ public class Resolution
 		// Iterator<HashSet<String>> it1 = database.entries.iterator();
 		int index1 = 0;
 		//	System.out.println("Display database:");
-		//database.displayDatabase();
-		//System.out.println("Dislayed database");
+		//	database.displayDatabase();
+		//	System.out.println("Dislayed database");
 		for(HashSet<String> clause1 : database.entries)
 		    {
 			//HashSet<String> clause1 = it1.next();
@@ -181,6 +187,9 @@ public class Resolution
 		    }
 
 		boolean isSubset = true;
+		//	tempDatabase.entries.clear();
+		//tempDatabase.addSentenceToDatabase(negatedQuery);
+		
 		for(HashSet<String> clause : newClauses)
 		    {
 			if(!database.entries.contains(clause))
@@ -188,7 +197,13 @@ public class Resolution
 				database.entries.add(clause);
 				isSubset = false;
 			    }
+			//	if(!tempDatabase.entries.contains(clause))
+			//	    {
+			//		tempDatabase.entries.add(clause);
+			//    }
+			
 		    }
+		database.normalizeDatabase();
 		//database.addAll(newClauses);
 		//database.displayDatabase();
 		if(isSubset)
@@ -230,7 +245,7 @@ public class Resolution
 			Literal l1=getLiteralInfo(literal1);
 
 			Literal l2=getLiteralInfo(literal2);
-
+			//System.out.println(literal1+ " " + literal2);
 			String predicate1 = l1.predicate;
 			String predicate2 = l2.predicate;
 			

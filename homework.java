@@ -54,6 +54,7 @@ public class homework
 		String postfixString = syntax.convertToPostfix(lexString);
 		//	System.out.println(postfixString);
 		String cnfString = syntax.convertToCNF(postfixString);
+		//	System.out.println("Postfix: " + cnfString);
 		database.addSentenceToDatabase(cnfString);
 	    }
 
@@ -64,47 +65,49 @@ public class homework
 		Resolution res = new Resolution();
 		SyntaxAnalysis syntax = new SyntaxAnalysis();
 		String postfixString = syntax.convertToPostfix(lexString);
-		String result = res.performResolution(postfixString,database);
+		postfixString+="~";
+		String cnfString = syntax.convertToCNF(postfixString);
+		String result = res.performResolution(cnfString,database);
 		System.out.println(result);
 	    }
 	/*for(int i=0;i<args.length;i++)
-	    {
-		if(args.length!=0)
-		    {
-			if(i!=args.length-1)
-			    {
-				//	System.out.println("Current sentence: " + args[i]);
-				String lexString = lex.getLexicallyAnalysedString(args[i]);
-				//	System.out.println(lexString);
-				//	System.out.println("Perform Tokenization");
-				SyntaxAnalysis syntax = new SyntaxAnalysis();
-				String postfixString = syntax.convertToPostfix(lexString);
-				//	System.out.println(postfixString);
-				String cnfString = syntax.convertToCNF(postfixString);
-				//	System.out.println("Convert to CNF");
-				//	System.out.println(cnfString);
-				//	System.out.println("Store into database");
-				//	syntax.addSentenceToDatabase(cnfString,database);
-				database.addSentenceToDatabase(cnfString);
-				//System.out.println(args[0]);
+	  {
+	  if(args.length!=0)
+	  {
+	  if(i!=args.length-1)
+	  {
+	  //	System.out.println("Current sentence: " + args[i]);
+	  String lexString = lex.getLexicallyAnalysedString(args[i]);
+	  //	System.out.println(lexString);
+	  //	System.out.println("Perform Tokenization");
+	  SyntaxAnalysis syntax = new SyntaxAnalysis();
+	  String postfixString = syntax.convertToPostfix(lexString);
+	  //	System.out.println(postfixString);
+	  String cnfString = syntax.convertToCNF(postfixString);
+	  //	System.out.println("Convert to CNF");
+	  //	System.out.println(cnfString);
+	  //	System.out.println("Store into database");
+	  //	syntax.addSentenceToDatabase(cnfString,database);
+	  database.addSentenceToDatabase(cnfString);
+	  //System.out.println(args[0]);
 			
-			    }
-			else
-			    {
-				//	System.out.println("Current sentence: " + args[i]);
-				String lexString = lex.getLexicallyAnalysedString(args[i]);
-				//	System.out.println(lexString);
-				Resolution res = new Resolution();
-				SyntaxAnalysis syntax = new SyntaxAnalysis();
-				String postfixString = syntax.convertToPostfix(lexString);
-				//	System.out.println(postfixString);
-				String result = res.performResolution(postfixString,database);
-				System.out.println(result);
-			    }
-		    }
+	  }
+	  else
+	  {
+	  //	System.out.println("Current sentence: " + args[i]);
+	  String lexString = lex.getLexicallyAnalysedString(args[i]);
+	  //	System.out.println(lexString);
+	  Resolution res = new Resolution();
+	  SyntaxAnalysis syntax = new SyntaxAnalysis();
+	  String postfixString = syntax.convertToPostfix(lexString);
+	  //	System.out.println(postfixString);
+	  String result = res.performResolution(postfixString,database);
+	  System.out.println(result);
+	  }
+	  }
 
 		
-		    }*/
+	  }*/
 	//database.displayDatabase();
 	    
     }
