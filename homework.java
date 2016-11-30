@@ -9,7 +9,10 @@ public class homework
     int noOfFacts;
     String[] queries;
     String[] facts;
-
+    static double maxTime;
+    static double currentTime;
+    static double endTime;
+    static double timePerQuery;
     public void readFromFile(String path)
     {
 	File inputFile = new File(path);
@@ -42,11 +45,12 @@ public class homework
     {
 	
 	homework hw = new homework();
+	homework.maxTime=250000;
 	hw.readFromFile("input.txt");
 
 	LexicalAnalysis lex = new LexicalAnalysis();
 	Database database = new Database();
-
+	
 	for(int i=0;i<hw.noOfFacts;i++)
 	    {
 		String lexString = lex.getLexicallyAnalysedString(hw.facts[i]);
@@ -56,7 +60,9 @@ public class homework
 		String cnfString = syntax.convertToCNF(postfixString);
 		database.addSentenceToDatabase(cnfString);
 	    }
-
+	homework.currentTime = System.currentTimeMillis();
+	homework.endTime = homework.currentTime+homework.maxTime;
+	homework.timePerQuery = 250000.0/hw.noOfQueries; 
 	for(int i=0;i<hw.noOfQueries;i++)
 	    {
 		String lexString = lex.getLexicallyAnalysedString(hw.queries[i]);

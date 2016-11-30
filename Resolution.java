@@ -117,6 +117,9 @@ public class Resolution
 	while(true)
 	    {
 		// Iterator<HashSet<String>> it1 = database.entries.iterator();
+		homework.currentTime = System.currentTimeMillis() ;//- homework.startTime;
+		if(homework.currentTime>=homework.endTime)
+		    return "False";
 		int index1 = 0;
 		//	System.out.println("Display database:");
 		//database.displayDatabase();
@@ -165,12 +168,17 @@ public class Resolution
 				if(!resolvedSet.contains(entryLit))
 				    {
 					HashSet<HashSet<String>> resolvents = resolve(clause1,clause2);
-				
+
+					
 					if(resolvents == null)
 					    return "True";
 					//resolvedSet.add(entryLit);
 					//	usedClauses.add(clause1);
 					//usedClauses.add(clause2);
+					homework.currentTime = System.currentTimeMillis();
+					if(homework.currentTime>=homework.endTime)
+					    return "False";
+					
 					newClauses.addAll(resolvents);
 				    }
 
@@ -244,21 +252,21 @@ public class Resolution
 				//sc.next();
 				bindings = unify(l1,l2,bindings);
 				/*if(bindings.containsKey("y") && bindings.get("y").equals("x") && bindings.containsKey("z") && bindings.get("z").equals("x"))
-				    {
-					System.out.println("Bindings found");
-					System.out.println("Predicates are " + l1.predicate + " and " + l2.predicate);
-					System.out.print("Params 1:");
-					for(String p : l1.parameters)
-					    {
-						System.out.print(p+" ");
-					    }
+				  {
+				  System.out.println("Bindings found");
+				  System.out.println("Predicates are " + l1.predicate + " and " + l2.predicate);
+				  System.out.print("Params 1:");
+				  for(String p : l1.parameters)
+				  {
+				  System.out.print(p+" ");
+				  }
 
-					System.out.print("\nParams 2:");
-					for(String p : l2.parameters)
-					    {
-						System.out.print(p+" ");
-					    }
-					    }*/
+				  System.out.print("\nParams 2:");
+				  for(String p : l2.parameters)
+				  {
+				  System.out.print(p+" ");
+				  }
+				  }*/
 				if(bindings==null)
 				    continue;
 
@@ -288,21 +296,21 @@ public class Resolution
 								String val = getBindingValue(p,bindings);
 								l.parameters[i] = val;
 								/*if(i!=0)
-								    {
-									if(l.parameters[i].equals(l.parameters[i-1]))
-									    {
-										Scanner sc=new Scanner(System.in);
-										System.out.println("Equal params detected");
-										System.out.println("Bindings");
-										for(Map.Entry<String,String> entry : bindings.entrySet())
-										    {
-											String key = entry.getKey();
-											String value = entry.getValue();
-											System.out.print(key + "/" + value + " ");
-										    }
-										sc.next();
-									    }
-									    }*/
+								  {
+								  if(l.parameters[i].equals(l.parameters[i-1]))
+								  {
+								  Scanner sc=new Scanner(System.in);
+								  System.out.println("Equal params detected");
+								  System.out.println("Bindings");
+								  for(Map.Entry<String,String> entry : bindings.entrySet())
+								  {
+								  String key = entry.getKey();
+								  String value = entry.getValue();
+								  System.out.print(key + "/" + value + " ");
+								  }
+								  sc.next();
+								  }
+								  }*/
 							    }
 							    
 						    }
@@ -333,7 +341,9 @@ public class Resolution
 					    }
 				    }
 				
-				
+				homework.currentTime = System.currentTimeMillis();
+				if(homework.currentTime>=homework.endTime)
+				    return new HashSet<String>();
 				if(resolvent.size()==0)
 				    return null;
 				
@@ -346,6 +356,9 @@ public class Resolution
 
     public HashMap<String,String> unify(Literal literal1, Literal literal2, HashMap<String,String> bindings)
     {
+	homework.currentTime = System.currentTimeMillis();
+	if(homework.currentTime>=homework.endTime)
+	    return null;
 	if(bindings == null)
 	    return null;
 	else if(Arrays.equals(literal1.parameters,literal2.parameters))
