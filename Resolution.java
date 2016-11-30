@@ -111,8 +111,8 @@ public class Resolution
 	//String negatedQuery = getNegatedQuery(query);
 	database.addSentenceToDatabase(negatedQuery);
 	database.normalizeDatabase();
-	//	Database tempDatabase = new Database();
-	//assignDatabase(tempDatabase,database);
+	Database tempDatabase = new Database();
+	assignDatabase(tempDatabase,database);
 	//	System.out.println("Display database:");
 	//	database.displayDatabase();
 	//	System.out.println("Dislayed database");
@@ -187,9 +187,9 @@ public class Resolution
 		    }
 
 		boolean isSubset = true;
-		//	tempDatabase.entries.clear();
+		tempDatabase.entries.clear();
 		//tempDatabase.addSentenceToDatabase(negatedQuery);
-		
+		assignDatabase(tempDatabase,database);
 		for(HashSet<String> clause : newClauses)
 		    {
 			if(!database.entries.contains(clause))
@@ -197,10 +197,10 @@ public class Resolution
 				database.entries.add(clause);
 				isSubset = false;
 			    }
-			//	if(!tempDatabase.entries.contains(clause))
-			//	    {
-			//		tempDatabase.entries.add(clause);
-			//    }
+			if(!tempDatabase.entries.contains(clause))
+			    {
+				tempDatabase.entries.add(clause);
+			    }
 			
 		    }
 		database.normalizeDatabase();
@@ -232,6 +232,17 @@ public class Resolution
     
     public HashSet<HashSet<String>> resolve(HashSet<String> clause1, HashSet<String> clause2)
     {
+	/*	System.out.println("Resolve");
+	for(String e1 : clause1)
+	    {
+		System.out.print(e1 + " ");
+	    }
+	System.out.println("");
+	for(String e2 : clause2)
+	    {
+		System.out.print(e2 + " ");
+	    }
+	    System.out.println("");*/
 	HashSet<HashSet<String>> resolvents = new HashSet<HashSet<String>>();
 	for(String literal1 : clause1)
 	    {
@@ -253,44 +264,24 @@ public class Resolution
 			    {
 				HashMap<String,String> bindings = new HashMap<String,String>();
 
-				//	System.out.println("Unify literals");
-				//	System.out.println("Literal 1:" + literal1 + " Literal 2:" + literal2);
-				//Scanner sc = new Scanner(System.in);
-				//sc.next();
 				bindings = unify(l1,l2,bindings);
-				/*if(bindings.containsKey("y") && bindings.get("y").equals("x") && bindings.containsKey("z") && bindings.get("z").equals("x"))
-				    {
-					System.out.println("Bindings found");
-					System.out.println("Predicates are " + l1.predicate + " and " + l2.predicate);
-					System.out.print("Params 1:");
-					for(String p : l1.parameters)
-					    {
-						System.out.print(p+" ");
-					    }
-
-					System.out.print("\nParams 2:");
-					for(String p : l2.parameters)
-					    {
-						System.out.print(p+" ");
-					    }
-					    }*/
+			
 				if(bindings==null)
 				    continue;
 
-				/*	System.out.println("Bindings");
-					for (Map.Entry<String,String> entry : bindings.entrySet())
-					{
+				/*	System.out.println("Binding: ");
+				for(Map.Entry<String,String> entry : bindings.entrySet())
+				    {
 					String key = entry.getKey();
 					String value = entry.getValue();
 					System.out.print(key+"/"+value+" ");
-				    
-					}
-					System.out.println("");*/
-				
+				    }
+				    System.out.println("");*/
 				HashSet<String> resolvent=new HashSet<String>();
 
+				String clause1Val="";
 				for(String literal : clause1)
-				    {
+				    {clause1Val+=literal+" ";
 					if(!literal.equals(literal1))
 					    {
 						Literal l = getLiteralInfo(literal);
@@ -302,22 +293,7 @@ public class Resolution
 							    {
 								String val = getBindingValue(p,bindings);
 								l.parameters[i] = val;
-								/*if(i!=0)
-								    {
-									if(l.parameters[i].equals(l.parameters[i-1]))
-									    {
-										Scanner sc=new Scanner(System.in);
-										System.out.println("Equal params detected");
-										System.out.println("Bindings");
-										for(Map.Entry<String,String> entry : bindings.entrySet())
-										    {
-											String key = entry.getKey();
-											String value = entry.getValue();
-											System.out.print(key + "/" + value + " ");
-										    }
-										sc.next();
-									    }
-									    }*/
+							
 							    }
 							    
 						    }
@@ -327,9 +303,9 @@ public class Resolution
 						resolvent.add(l.convertToString());
 					    }
 				    }
-
+				String clause2Val="";
 				for(String literal : clause2)
-				    {
+				    { clause2Val+=literal+" ";
 					if(!literal.equals(literal2))
 					    {
 						Literal l = getLiteralInfo(literal);
@@ -350,7 +326,16 @@ public class Resolution
 				
 				
 				if(resolvent.size()==0)
-				    return null;
+				    {
+					
+					return null;
+				    }
+
+				/*	if(resolvent.contains("`H,Alice`~"))
+				    {
+					System.out.println("The hell is happending");
+					System.out.println(clause1Val + "\n" + clause2Val);
+					}*/
 				
 				resolvents.add(resolvent);
 			    }

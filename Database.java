@@ -13,6 +13,33 @@ public class Database extends Compiler
 	entries = new HashSet<HashSet<String>>();
     }
 
+    public boolean compareEntries()
+    {
+	/*int index1 = 0;
+	for(HashSet<String> clause1 : entries)
+	    {
+		for(String literal1 : clause)
+		    {
+			int index2 = 0;
+			for(HashSet<String> clause2 : entries)
+			    {
+				for(String literal2 : clause2)
+				    {
+					if(index2++<=index1)
+					    {
+						continue;
+					    }
+
+					if(literal1.equals(literal2))
+					    {
+					    }
+				    }
+			    }
+		    }
+		index1++;
+	    }*/
+	return true;
+    }
     public void add(HashSet<String> clause)
     {
 	if(!entries.contains(clause))
